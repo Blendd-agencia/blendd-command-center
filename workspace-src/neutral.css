@@ -1,0 +1,16 @@
+/* Neutral theme for implementation review. No branding colour. */
+:root{--ink:#202020;--muted:#666;--line:#ddd;--green:#303030;--paper:#f6f6f6}
+body{background:#f6f6f6;font-family:Arial,Helvetica,sans-serif;color:#222}
+aside,.portal-nav{background:#ededed!important;color:#222!important;border-right:1px solid #d0d0d0!important}
+aside *,.portal-nav button{color:#333!important}.brand,.brand small{color:#222!important}
+nav button.active,.portal-nav button.active{background:#d6d6d6!important;color:#111!important;box-shadow:none!important;border-left:3px solid #222!important}
+button.primary,.primary{background:#292929!important;color:#fff!important;border-color:#292929!important}
+body header,.portal-top{background:#fff!important}#clientPortal .portal-top,#clientPortal .portal-top *{color:#222!important;background:transparent!important}.welcome-strip,.portal-hero,.vault-locked{background:#f0f0f0!important}
+.card,.portal-card{background:#fff!important;box-shadow:none!important}.snapshot,.company-entry,.client-card{box-shadow:none!important}
+a{color:#333}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid #111!important;outline-offset:2px}
+.mirror-sheet .rejected-row td,.mirror-sheet .rejected-row td.date-col{background:#e7e7e7!important;border-bottom:2px dashed #666!important}
+.mirror-sheet .rejected-row td.date-col::after{content:'Requer alterações';display:block;margin-top:8px;font-size:11px;font-weight:700;color:#222}
+.mirror-sheet .approved-row td.date-col::after{content:'Aprovado';display:block;margin-top:8px;font-size:11px;font-weight:700;color:#222}
+.mirror-toggle .is-yes{background:#333!important;color:#fff!important}.mirror-toggle .is-no{background:#ddd!important;color:#111!important;border-style:dashed!important}
+body,body *,button,input,textarea,select,h1,h2,h3,h4{font-family:Arial,Helvetica,sans-serif!important}input{accent-color:#333}body .welcome-strip *,body .portal-hero *{color:#222!important}.welcome-strip::before,.welcome-strip::after,.portal-hero::before,.portal-hero::after{display:none!important}.snapshot{background:#ddd!important;color:#222!important}.handoff-note{padding:14px;background:#f2f2f2;border:1px solid #ccc;margin-bottom:18px;font-size:12px;color:#444}
+.handoff-note button{margin-left:8px;padding:6px 9px;font-size:12px}
