@@ -1,3 +1,4 @@
+import {appOrigin} from '../lib/config.mjs';
 import {sb,identify,response,failure} from '../lib/supabase.mjs';
 import {HttpError,sameOrigin,validateRecord,uuid} from '../lib/validation.mjs';
 export default async function handler(req,res){try{
@@ -7,7 +8,7 @@ export default async function handler(req,res){try{
   const paths={companies:'/rest/v1/cc_companies?select=id,name',clients:'/rest/v1/cc_clients?select=id,company_id,name',records:'/rest/v1/cc_records?select=*&order=updated_at.desc&limit=1000',integrations:'/rest/v1/cc_integrations?select=*&order=provider',audit:'/rest/v1/cc_audit?select=*&order=at.desc&limit=100'};
   if(!paths[kind])throw new HttpError(400,'Recurso inválido.');return response(res,200,await sb(paths[kind],{token}));
  }
- sameOrigin(req,process.env.APP_ORIGIN);
+ sameOrigin(req,appOrigin());
  const body=req.body||{};
  if(req.method==='POST'&&req.query?.resource==='clients'){
   uuid(body.company_id);if(!memberships.some(m=>m.company_id===body.company_id&&['admin','editor'].includes(m.role)))throw new HttpError(403,'Sem acesso.');

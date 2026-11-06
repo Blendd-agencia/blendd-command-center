@@ -18,7 +18,7 @@ O repositório original tinha apenas um README. O projeto Supabase existente foi
 
 Não há utilizadores reais criados nem pertenças atribuídas. Não foram importados dados comerciais. O pacote original contém dados reais e não foi adicionado a este repositório público.
 
-Não foi criado projeto na Vercel: a ligação da equipa devolveu `403 forbidden`. A alternativa CLI não tinha credenciais e iniciou um pedido de autenticação. Não há deployment novo concluído.
+O projeto Vercel foi criado pelo proprietário e o GitHub confirmou o primeiro deployment com sucesso. A ligação Vercel deste chat continua sem conseguir consultar o projeto. As atualizações são publicadas através do GitHub.
 
 ## Desenvolvimento e validação
 
@@ -30,7 +30,7 @@ npm test
 npm run build
 ```
 
-As funções em `api/` destinam-se à Vercel. Configurar as variáveis de `.env.example` no servidor. `APP_ORIGIN` tem de corresponder exatamente ao endereço HTTPS da aplicação. Não configurar o domínio a partir de headers recebidos.
+As funções em `api/` destinam-se à Vercel. As variáveis de `.env.example` permitem substituir a configuração. Por omissão, `lib/config.mjs` contém apenas o URL e a chave pública Supabase; não contém uma chave privilegiada. A origem autorizada é obtida de `VERCEL_PROJECT_PRODUCTION_URL`, fornecida pela Vercel, ou de `APP_ORIGIN` explícita. Nunca é inferida de headers recebidos.
 
 `tests/rls.sql` verifica isolamento, escritas negadas, conflito de versões, auditoria e limite de pedidos numa transação que termina em ROLLBACK. Usa identidades temporárias sem email enviado e não testa login real. Não confundir este teste com testes simultâneos de browser ou restauro de backups.
 

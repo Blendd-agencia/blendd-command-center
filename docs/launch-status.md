@@ -23,12 +23,12 @@ Data: 2026-11-06. Esta branch é uma base de desenvolvimento, não uma entrega f
 | Performance | Sem dependências de runtime, assets locais. Medição real e paginação completa pendentes; listagem inicial limitada a 1000 registos. |
 | Monitorização | Erros internos com código genérico sem payload. Alertas externos, métricas e retenção pendentes. |
 | Backups e restauro | Não configurados/não testados. Não afirmar o contrário. Incluir dados SQL e objetos do Storage no plano de restauro. |
-| GitHub → Vercel | Acesso GitHub com escrita confirmado. Vercel bloqueou criação com 403; CLI pediu login. Sem deployment. |
+| GitHub → Vercel | Acesso GitHub com escrita confirmado. Projeto criado pelo proprietário; GitHub confirmou deployment inicial com sucesso. Consulta direta pelo conector Vercel ainda devolve 404. Atualizações via GitHub. |
 | UI completa do protótipo | Ainda não migrada. Só tarefas, clientes e configurações iniciais funcionam nesta base. |
 
 ## Sequência para continuar
 
-1. Concluir autenticação Vercel na equipa autorizada; verificar primeiro se entretanto apareceu um projeto ligado ao repositório.
+1. Ligação GitHub → Vercel estabelecida. Validar novos deployments pelo estado do commit; ainda falta acesso administrativo ao projeto por este chat.
 2. Migrar os módulos e comportamentos da matriz de paridade; não publicar o protótipo com dados incorporados.
 3. Provisionar contas via mecanismos oficiais Supabase Auth e atribuir pertenças por user_id confirmado. Não escrever passwords em SQL, Git ou logs.
 4. Implementar e testar pipeline de ficheiros, portal, ciclos de aprovação, importação, cofre e conectores separadamente.
