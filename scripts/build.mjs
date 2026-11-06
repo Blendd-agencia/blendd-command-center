@@ -1,6 +1,6 @@
 import {execFileSync} from 'node:child_process';
 import {readdirSync,readFileSync,mkdirSync,copyFileSync,writeFileSync} from 'node:fs';
-const order=['cloud-prelude','finance','management','app','workspace','social','portal','client-content','post-mirror','crm-details','vault-crypto','password-controls','vault','cloud-bridge'];
+const order=['cloud-prelude','backup-validation','finance','management','app','workspace','social','portal','client-content','post-mirror','crm-details','vault-crypto','password-controls','vault','cloud-bridge'];
 mkdirSync('public/workspace/vendor',{recursive:true});
 for(const name of readdirSync('workspace-src'))if(/\.css$/.test(name)||['index.html','boot.js','sanitize.js'].includes(name))copyFileSync('workspace-src/'+name,'public/workspace/'+name);
 copyFileSync('node_modules/dompurify/dist/purify.min.js','public/workspace/vendor/purify.min.js');

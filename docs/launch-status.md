@@ -9,3 +9,9 @@ Implemented server session validation, RLS, optimistic revisions, idempotent ope
 Verification: automated auth/origin/model tests; Supabase transactional checks for idempotency, stale write rejection and snapshot generation; browser navigation and task creation with synthetic data/mock transport. This is NOT an end-to-end authenticated production upload test. Production login was confirmed by the user before this release.
 
 Still pending release gates: external client authorization/portal, end-to-end file/vault/restore tests with real sessions, actual simultaneous browser load tests, automated off-project backups and full disaster restore, monitoring alert destinations, complete dependency/security review. Moloni, email, OTP and external paid APIs remain inactive. Integration controls save limits only; Supabase has a session-scoped connectivity test. No claim of completed external integrations.
+
+## Follow-up verification
+
+25 automated tests now include actual Web Crypto encrypt/export/decrypt, wrong phrase and modified ciphertext rejection; backup document signatures, SHA-256, duplicate IDs and cross-company rejection; edits during an in-flight save and conflict retention. Backup restore preflights every attachment and checks existing server metadata before the first upload. Legacy copies resolve file ownership from staff/client/lead relationships rather than assuming Blendd. Anonymous request to the deployed Supabase file function returned HTTP 401.
+
+These checks do not substitute for authenticated browser document/vault/restore tests, off-project disaster recovery, or simultaneous user load testing. The Vercel connector still returns project-not-found for the authorized team; deployment continues through the existing GitHub integration.
