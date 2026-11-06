@@ -1,9 +1,9 @@
-import {appOrigin} from '../lib/config.mjs';
+import {appOrigins} from '../lib/config.mjs';
 import {sb,identify,sessionCookie,response,failure,cookies} from '../lib/supabase.mjs';
 import {HttpError,sameOrigin} from '../lib/validation.mjs';
 export default async function handler(req,res){try{
  if(req.method==='GET'){const {user,memberships}=await identify(req);return response(res,200,{email:user.email,memberships});}
- sameOrigin(req,appOrigin());
+ sameOrigin(req,appOrigins());
  if(req.method==='DELETE'){const token=cookies(req)['__Host-cc'];sessionCookie(res,null);if(token)await sb('/auth/v1/logout',{method:'POST',token});return response(res,200,{ok:true});}
  if(req.method!=='POST')throw new HttpError(405,'Método não permitido.');
  const {email,password}=req.body||{};
