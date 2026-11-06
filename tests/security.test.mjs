@@ -1,0 +1,11 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {validateRecord,plain,sameOrigin} from '../lib/validation.mjs';
+import {identify,sessionCookie} from '../lib/supabase.mjs';
+const base={company_id:'b1000000-0000-4000-8000-000000000001',kind:'task',title:'Tarefa',payload:{notes:'texto'},visibility:'internal'};
+test('reject sharing internal finance',()=>assert.throws(()=>validateRecord({...base,kind:'finance',payload:{amount_cents:100},visibility:'shared'})));
+test('accept integer cents; reject floating money',()=>{validateRecord({...base,kind:'finance',payload:{amount_cents:12000}});assert.throws(()=>validateRecord({...base,kind:'finance',payload:{amount_cents:1.5}}));});
+test('reject injected prototype keys and secrets',()=>{assert.throws(()=>plain(JSON.parse('{"__proto__":{}}')));assert.throws(()=>plain({nested:{password:'never'}}));});
+test('enforce same origin and configured origin',()=>{sameOrigin({headers:{origin:'https://cc.example'}},'https://cc.example');assert.throws(()=>sameOrigin({headers:{origin:'https://attacker.example'}},'https://cc.example'));assert.throws(()=>sameOrigin({headers:{}},undefined));});
+test('unauthenticated data access fails closed',async()=>{await assert.rejects(()=>identify({headers:{}}),e=>e.status===401);});
+test('session cookie is host-only, secure and inaccessible to JS',()=>{let c;sessionCookie({setHeader:(k,v)=>c=v},'test',999999);assert.match(c,/HttpOnly; Secure; SameSite=Strict; Path=\/; Max-Age=3600/);assert.ok(!c.includes('Domain='));});
+test('record size and required identity bounds',()=>{assert.throws(()=>validateRecord({...base,company_id:'anything'}));assert.throws(()=>validateRecord({...base,title:''}));assert.throws(()=>validateRecord({...base,payload:{notes:'x'.repeat(32001)}}));});
