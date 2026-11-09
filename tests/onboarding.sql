@@ -1,0 +1,52 @@
+begin;
+select set_config('request.jwt.claim.sub',(select user_id::text from public.cc_memberships where role='admin' group by user_id having count(*)>=2 limit 1),true);
+do $$ declare p jsonb;r int;begin
+select payload,revision into p,r from public.cc_workspace_states where scope='Blendd' for update;
+p:=jsonb_set(p,'{staff}',(p->'staff')||'[{"id":"staff-onboarding-test","name":"Colaborador de teste","company":"Blendd","amount":123}]'::jsonb);
+perform public.cc_save_workspace(jsonb_build_array(jsonb_build_object('scope','Blendd','revision',r,'payload',p)),gen_random_uuid());
+end $$;
+do $$
+declare a jsonb; b jsonb; c text; t text; s text:=repeat('a',64); v jsonb; i int;
+begin
+ a:=public.cc_staff_admin('create','{"scope":"Blendd","staffId":"staff-onboarding-test"}');
+ t:=a->>'token'; c:=public.cc_staff_admin('reveal',jsonb_build_object('id',a->>'id'))->>'code';
+ if c is null then raise exception 'Missing code'; end if;
+ if not (public.cc_staff_admin('reveal',jsonb_build_object('id',a->>'id')) ? 'error') then raise exception 'Code read twice'; end if;
+ perform set_config('request.jwt.claim.sub','',true);
+ begin perform public.cc_staff_admin('list','{}'); raise exception 'Guest admin allowed'; exception when insufficient_privilege then null; end;
+ for i in 1..5 loop
+  v:=public.cc_staff_guest('open',t,'WRONG',s,null);
+  if not(v ? 'error') then raise exception 'Wrong code accepted'; end if;
+ end loop;
+ if not(public.cc_staff_guest('open',t,c,s,null) ? 'error') then raise exception 'Lockout failed'; end if;
+ perform set_config('request.jwt.claim.sub',(select user_id::text from public.cc_memberships where role='admin' group by user_id having count(*)>=2 limit 1),true);
+ a:=public.cc_staff_admin('create','{"scope":"Blendd","staffId":"staff-onboarding-test"}');
+ t:=a->>'token'; c:=public.cc_staff_admin('reveal',jsonb_build_object('id',a->>'id'))->>'code';
+ perform set_config('request.jwt.claim.sub','',true);
+ v:=public.cc_staff_guest('open',t,c,s,null);
+ if v->'fields'->>'name'<>'Colaborador de teste' or v->'fields' ? 'amount' then raise exception 'Prefill projection failed'; end if;
+ if not(public.cc_staff_guest('open',t,c,repeat('b',64),null) ? 'error') then raise exception 'Invite reused'; end if;
+ if not(public.cc_staff_guest('read',null,null,repeat('b',64),null) ? 'error') then raise exception 'Wrong session allowed'; end if;
+ if not(public.cc_staff_guest('submit',null,null,s,'{"name":"Test","company":"Blendd"}') ? 'error') then raise exception 'Extra fields accepted'; end if;
+ if not(public.cc_staff_guest('submit',null,null,s,'{"name":"Test","dependants":-1}') ? 'error') then raise exception 'Invalid number accepted'; end if;
+ if not(public.cc_staff_guest('submit',null,null,s,'{"name":"Test","birth":"2026-99-99"}') ? 'error') then raise exception 'Invalid date accepted'; end if;
+ v:=public.cc_staff_guest('submit',null,null,s,v->'fields');
+ if v->>'ok'<>'true' then raise exception 'Save failed'; end if;
+ if not(public.cc_staff_guest('read',null,null,s,null) ? 'error') then raise exception 'Read after submit allowed'; end if;
+ if public.cc_staff_guest('submit',null,null,s,'{"name":"Overwrite"}')->>'ok'<>'true' then raise exception 'Retry receipt failed'; end if;
+ perform set_config('request.jwt.claim.sub',(select user_id::text from public.cc_memberships where role='admin' group by user_id having count(*)>=2 limit 1),true);
+ if public.cc_staff_admin('apply',jsonb_build_object('id',a->>'id'))->>'ok'<>'true' then raise exception 'Apply failed'; end if;
+ if public.cc_staff_admin('apply',jsonb_build_object('id',a->>'id'))->>'ok'<>'true' then raise exception 'Idempotent apply failed'; end if;
+ if not exists(select 1 from public.cc_workspace_states,jsonb_array_elements(payload->'staff') r where scope='Blendd' and r->>'id'='staff-onboarding-test' and r->>'personalDataConfirmed'='true' and r->>'name'='Colaborador de teste') then raise exception 'Profile not updated'; end if;
+ a:=public.cc_staff_admin('create','{"scope":"Blendd","staffId":"staff-onboarding-test"}');
+ t:=a->>'token'; c:=public.cc_staff_admin('reveal',jsonb_build_object('id',a->>'id'))->>'code';
+ update cc_private.staff_invites set expires_at=now()-interval '1 second' where id=(a->>'id')::uuid;
+ if not(public.cc_staff_guest('open',t,c,repeat('c',64),null) ? 'error') then raise exception 'Expired invite accepted'; end if;
+ a:=public.cc_staff_admin('create','{"scope":"Blendd","staffId":"staff-onboarding-test"}');
+ t:=a->>'token'; c:=public.cc_staff_admin('reveal',jsonb_build_object('id',a->>'id'))->>'code';
+ perform public.cc_staff_guest('open',t,c,repeat('c',64),null);
+ update cc_private.staff_invites set session_expires=now()-interval '1 second' where id=(a->>'id')::uuid;
+ if not(public.cc_staff_guest('read',null,null,repeat('c',64),null) ? 'error') then raise exception 'Expired session accepted'; end if;
+end $$;
+select 'PASS: lockout, projection, single use, session isolation, validation, submit/retry, apply/retry, expiry' as result;
+rollback;
