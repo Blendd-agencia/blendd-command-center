@@ -1,5 +1,5 @@
 const $=s=>document.querySelector(s);
-const labels={name:'Nome completo',birth:'Data de nascimento',nif:'NIF',niss:'NISS',address:'Morada',postal:'Código postal',city:'Localidade / país',iban:'IBAN',bank:'Banco',maritalStatus:'Estado civil',dependants:'Dependentes',phone:'Telefone',email:'Email'};
+const labels={name:'Nome completo',birth:'Data de nascimento',cc:'Número do Cartão de Cidadão',ccExpiry:'Validade do Cartão de Cidadão',nif:'NIF',niss:'NISS',address:'Morada',postal:'Código postal',city:'Localidade / país',iban:'IBAN',bank:'Banco',maritalStatus:'Estado civil',dependants:'Dependentes',phone:'Telefone',email:'Email'};
 const statuses={pending:'Aguarda preenchimento',opened:'Em preenchimento',submitted:'Recebido · por rever',applied:'Confirmado na ficha',revoked:'Revogado'};
 function msg(text,error=false){$('#message').textContent=text;$('#message').className=error?'error':'';}
 async function api(body){const r=await fetch('/api/staff-invites',{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined,cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error||'Não foi possível concluir.');return d;}

@@ -15,7 +15,7 @@ revoke all on cc_private.staff_invites from public,anon,authenticated;
 
 create function cc_private.staff_fields(p jsonb) returns jsonb language sql immutable set search_path='' as $$
  select coalesce(jsonb_object_agg(key,value),'{}'::jsonb) from jsonb_each(p)
- where key=any(array['name','address','postal','city','birth','nif','niss','iban','bank','maritalStatus','dependants','email','phone']);
+ where key=any(array['name','address','postal','city','birth','nif','niss','iban','bank','maritalStatus','dependants','email','phone','cc','ccExpiry']);
 $$;
 revoke all on function cc_private.staff_fields(jsonb) from public;
 
@@ -36,6 +36,10 @@ begin
  if coalesce(p->>'birth','')<>'' then
   if p->>'birth'!~'^[0-9]{4}-[0-9]{2}-[0-9]{2}$' then return false; end if;
   perform (p->>'birth')::date;
+ end if;
+ if coalesce(p->>'ccExpiry','')<>'' then
+  if p->>'ccExpiry'!~'^[0-9]{4}-[0-9]{2}-[0-9]{2}$' then return false; end if;
+  perform (p->>'ccExpiry')::date;
  end if;
  return true;
 exception when others then return false;
@@ -106,8 +110,8 @@ begin
    update cc_private.staff_invites set failed_attempts=failed_attempts+1,status=case when failed_attempts>=4 then 'revoked' else status end,delivery_code=case when failed_attempts>=4 then null else delivery_code end where id=inv.id;
    return invalid;
   end if;
-  update cc_private.staff_invites set status='opened',session_hash=encode(sha256(convert_to(session_token,'UTF8')),'hex'),session_expires=least(now()+interval '15 minutes',expires_at),delivery_code=null where id=inv.id;
-  return jsonb_build_object('fields',inv.prefill,'expiresAt',least(now()+interval '15 minutes',inv.expires_at));
+  update cc_private.staff_invites set status='opened',session_hash=encode(sha256(convert_to(session_token,'UTF8')),'hex'),session_expires=least(now()+interval '30 minutes',expires_at),delivery_code=null where id=inv.id;
+  return jsonb_build_object('fields',inv.prefill,'expiresAt',least(now()+interval '30 minutes',inv.expires_at));
  end if;
  if session_token is null or session_token!~'^[a-f0-9]{64}$' then return invalid; end if;
  select * into inv from cc_private.staff_invites where session_hash=encode(sha256(convert_to(session_token,'UTF8')),'hex') for update;

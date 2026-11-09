@@ -1,5 +1,5 @@
 const $=s=>document.querySelector(s);
-const schema=[['name','Nome completo','text'],['birth','Data de nascimento','date'],['nif','NIF','text'],['niss','NISS','text'],['address','Morada','text'],['postal','Código postal','text'],['city','Localidade / país','text'],['iban','IBAN','text'],['bank','Banco','text'],['maritalStatus','Estado civil','select'],['dependants','Número de dependentes','number'],['phone','Telefone','tel'],['email','Email de contacto (opcional)','email']];
+const schema=[['name','Nome completo','text'],['birth','Data de nascimento','date'],['cc','Número do Cartão de Cidadão','text'],['ccExpiry','Validade do Cartão de Cidadão','date'],['nif','NIF','text'],['niss','NISS','text'],['address','Morada','text'],['postal','Código postal','text'],['city','Localidade / país','text'],['iban','IBAN','text'],['bank','Banco','text'],['maritalStatus','Estado civil','select'],['dependants','Número de dependentes','number'],['phone','Telefone','tel'],['email','Email de contacto (opcional)','email']];
 let token=location.hash.slice(1),timer;
 history.replaceState(null,'',location.pathname);
 function message(text,error=false){$('#message').textContent=text;$('#message').className=error?'error':'';}

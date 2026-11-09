@@ -2,7 +2,7 @@ begin;
 select set_config('request.jwt.claim.sub',(select user_id::text from public.cc_memberships where role='admin' group by user_id having count(*)>=2 limit 1),true);
 do $$ declare p jsonb;r int;begin
 select payload,revision into p,r from public.cc_workspace_states where scope='Blendd' for update;
-p:=jsonb_set(p,'{staff}',(p->'staff')||'[{"id":"staff-onboarding-test","name":"Colaborador de teste","company":"Blendd","amount":123}]'::jsonb);
+p:=jsonb_set(p,'{staff}',(p->'staff')||'[{"id":"staff-onboarding-test","name":"Colaborador de teste","company":"Blendd","amount":123,"cc":"12345678 1 ZX9","ccExpiry":"2030-12-31"}]'::jsonb);
 perform public.cc_save_workspace(jsonb_build_array(jsonb_build_object('scope','Blendd','revision',r,'payload',p)),gen_random_uuid());
 end $$;
 do $$
@@ -24,6 +24,9 @@ begin
  t:=a->>'token'; c:=public.cc_staff_admin('reveal',jsonb_build_object('id',a->>'id'))->>'code';
  perform set_config('request.jwt.claim.sub','',true);
  v:=public.cc_staff_guest('open',t,c,s,null);
+ if (v->>'expiresAt')::timestamptz < now()+interval '29 minutes' then raise exception 'Session is shorter than 30 minutes'; end if;
+ if v->'fields'->>'cc'<>'12345678 1 ZX9' or v->'fields'->>'ccExpiry'<>'2030-12-31' then raise exception 'Citizen card prefill missing'; end if;
+ if not(public.cc_staff_guest('submit',null,null,s,'{"name":"Test","ccExpiry":"2030-99-99"}') ? 'error') then raise exception 'Invalid card expiry accepted'; end if;
  if v->'fields'->>'name'<>'Colaborador de teste' or v->'fields' ? 'amount' then raise exception 'Prefill projection failed'; end if;
  if not(public.cc_staff_guest('open',t,c,repeat('b',64),null) ? 'error') then raise exception 'Invite reused'; end if;
  if not(public.cc_staff_guest('read',null,null,repeat('b',64),null) ? 'error') then raise exception 'Wrong session allowed'; end if;
@@ -37,7 +40,7 @@ begin
  perform set_config('request.jwt.claim.sub',(select user_id::text from public.cc_memberships where role='admin' group by user_id having count(*)>=2 limit 1),true);
  if public.cc_staff_admin('apply',jsonb_build_object('id',a->>'id'))->>'ok'<>'true' then raise exception 'Apply failed'; end if;
  if public.cc_staff_admin('apply',jsonb_build_object('id',a->>'id'))->>'ok'<>'true' then raise exception 'Idempotent apply failed'; end if;
- if not exists(select 1 from public.cc_workspace_states,jsonb_array_elements(payload->'staff') r where scope='Blendd' and r->>'id'='staff-onboarding-test' and r->>'personalDataConfirmed'='true' and r->>'name'='Colaborador de teste') then raise exception 'Profile not updated'; end if;
+ if not exists(select 1 from public.cc_workspace_states,jsonb_array_elements(payload->'staff') r where scope='Blendd' and r->>'id'='staff-onboarding-test' and r->>'personalDataConfirmed'='true' and r->>'name'='Colaborador de teste' and r->>'cc'='12345678 1 ZX9' and r->>'ccExpiry'='2030-12-31') then raise exception 'Profile not updated'; end if;
  a:=public.cc_staff_admin('create','{"scope":"Blendd","staffId":"staff-onboarding-test"}');
  t:=a->>'token'; c:=public.cc_staff_admin('reveal',jsonb_build_object('id',a->>'id'))->>'code';
  update cc_private.staff_invites set expires_at=now()-interval '1 second' where id=(a->>'id')::uuid;
