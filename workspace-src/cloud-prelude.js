@@ -2,7 +2,7 @@ const Cloud=(()=>{
  let active=false,timer,flight=null,queued=false,failed=false,baseline=JSON.stringify(window.workspaceBootData.data),notice=null;
  const revisions={...window.workspaceBootData.revisions};
  function banner(message,error=false){const b=document.getElementById('cloudBanner');b.textContent=message;b.classList.toggle('cloud-error',error);document.querySelectorAll('[data-cloud-status]').forEach(n=>n.textContent=message);}
- async function request(url,options={}){const r=await fetch(url,{...options,headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(20000)});const data=await r.json();if(!r.ok){const e=Error(data.error||'Não foi possível guardar.');e.status=r.status;throw e;}return data;}
+ const request=(url,options={})=>CCSession.request(url,options);
  function schedule(){if(!active||failed)return;queued=true;banner('Alterações por guardar');clearTimeout(timer);timer=setTimeout(flush,600);}
  function defer(message,undo){if(queued||flight){notice={message,undo};return true;}return false;}
  async function flush(){clearTimeout(timer);if(!active||failed)return false;if(flight){queued=true;await flight;return !failed;}const snapshot=JSON.stringify(db);if(snapshot===baseline){queued=false;return true;}queued=false;banner('A guardar no servidor…');
