@@ -1,0 +1,72 @@
+/* Shared form controls across the workspace, client preview and onboarding. */
+html body select:not([multiple]) {
+  min-height:46px;
+  max-width:100%;
+  box-sizing:border-box;
+  border:1px solid #dce4ed;
+  border-radius:14px;
+  padding:11px 15px;
+  background-color:#fff;
+  color:#243249;
+  font-family:inherit;
+  font-size:15px;
+  font-weight:500;
+  line-height:1.5;
+  box-shadow:0 2px 5px #24324905;
+  cursor:pointer;
+  transition:border-color .16s ease,box-shadow .16s ease,background-color .16s ease;
+}
+html body select:not([multiple]):hover:not(:disabled) {border-color:#a9c8d7;background-color:#fcfeff;}
+html body select:not([multiple]):focus-visible {outline:3px solid #0593c629;outline-offset:2px;border-color:#0593c6;box-shadow:0 0 0 1px #0593c614;}
+html body select:not([multiple]):disabled {background-color:#f3f5f8;color:#8491a3;border-color:#e3e8ef;cursor:not-allowed;box-shadow:none;}
+@supports (appearance:base-select) {
+  html body select:not([multiple]):not([size]),html body select:not([multiple])[size="1"],
+  html body select:not([multiple]):not([size])::picker(select),html body select:not([multiple])[size="1"]::picker(select) {appearance:base-select;}
+  html body select::picker-icon {color:#73859b;font-size:13px;margin-inline-start:18px;transition:rotate .16s ease;}
+  html body select:open {border-color:#0593c6;box-shadow:0 0 0 3px #0593c614;}
+  html body select:open::picker-icon {rotate:180deg;color:#0593c6;}
+  html body select::picker(select) {
+    margin-block:7px;
+    padding:6px;
+    border:1px solid #e2e8f0;
+    border-radius:16px;
+    background:#fff;
+    color:#243249;
+    box-shadow:0 14px 40px #21334b24,0 3px 10px #21334b0a;
+    max-block-size:min(360px,60dvh);
+    max-inline-size:calc(100vw - 24px);
+    overflow:auto;
+    scrollbar-width:thin;
+    scrollbar-color:#c9d5e2 transparent;
+    font-family:inherit;
+    font-size:15px;
+    line-height:1.5;
+  }
+  html body select:not([multiple]):not([size]) option,html body select:not([multiple])[size="1"] option {
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-height:42px;
+    padding:10px 13px;
+    margin:2px 0;
+    border:0;
+    border-radius:10px;
+    background:#fff;
+    color:#34445a;
+    font-family:inherit;
+    font-size:15px;
+    font-weight:500;
+    line-height:1.5;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    cursor:pointer;
+  }
+  html body select option:hover,html body select option:focus {outline:none;background:#f0f7fb;color:#087fa9;}
+  html body select option:checked {background:#e7f5fb;color:#076c94;font-weight:650;}
+  html body select option:disabled {color:#96a0ae;background:#fafbfc;cursor:not-allowed;}
+  html body select option::checkmark {order:1;margin-inline-start:auto;color:#0593c6;font-size:15px;}
+  html body select optgroup {padding:6px;color:#78879a;font-size:12px;font-weight:650;}
+}
+@media (max-width:720px) {html body select:not([multiple]) {min-height:48px;font-size:16px;}}
+@media (prefers-reduced-motion:reduce) {html body select,html body select::picker-icon {transition:none;}}
+@media (forced-colors:active) {html body select:focus-visible {outline-color:Highlight;}html body select option:checked {color:HighlightText;background:Highlight;}}
