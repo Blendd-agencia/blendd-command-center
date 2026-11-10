@@ -8,6 +8,9 @@
   "functions": {
     "api/*.mjs": {
       "maxDuration": 30
+    },
+    "api/editorial-ai.mjs": {
+      "maxDuration": 60
     }
   },
   "headers": [
@@ -60,4 +63,3 @@
     }
   ]
 }
-
