@@ -35,6 +35,8 @@ begin
  if not(public.cc_staff_guest('submit',null,null,s,'{"name":"Test","birth":"2026-99-99"}') ? 'error') then raise exception 'Invalid date accepted'; end if;
  v:=public.cc_staff_guest('submit',null,null,s,v->'fields');
  if v->>'ok'<>'true' then raise exception 'Save failed'; end if;
+ if not exists(select 1 from cc_private.staff_invites where id=(a->>'id')::uuid and status='applied' and applied_at is not null) then raise exception 'Submission not automatically applied'; end if;
+ if not exists(select 1 from public.cc_workspace_states w,jsonb_array_elements(w.payload->'staff') r where w.scope='Blendd' and r->>'id'='staff-onboarding-test' and r->>'personalDataConfirmed'='true' and r->>'amount'='123') then raise exception 'Auto application lost internal fields'; end if;
  if not(public.cc_staff_guest('read',null,null,s,null) ? 'error') then raise exception 'Read after submit allowed'; end if;
  if public.cc_staff_guest('submit',null,null,s,'{"name":"Overwrite"}')->>'ok'<>'true' then raise exception 'Retry receipt failed'; end if;
  perform set_config('request.jwt.claim.sub',(select user_id::text from public.cc_memberships where role='admin' group by user_id having count(*)>=2 limit 1),true);
