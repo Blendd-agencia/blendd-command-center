@@ -50,7 +50,14 @@ export default async function handler(req,res){let jobId,session,usageMetrics;
   const properties=Object.fromEntries(OUTPUT_KEYS.map(k=>[k,k==='warnings'?{type:'array',items:{type:'string'}}:{type:'string'}]));
   let upstream;usageMetrics.providerAttempted=true;
   try{upstream=await fetch('https://ai-gateway.vercel.sh/v1/chat/completions',{method:'POST',headers:{Authorization:'Bearer '+credential,'Content-Type':'application/json'},body:JSON.stringify({model:AI_MODEL,max_completion_tokens:6000,reasoning_effort:'low',messages:[{role:'system',content:systemPrompt},{role:'user',content}],response_format:{type:'json_schema',json_schema:{name:'editorial_draft',strict:true,schema:{type:'object',properties,required:OUTPUT_KEYS,additionalProperties:false}}}}),signal:AbortSignal.timeout(75000)});}catch{throw new HttpError(504,'A geração excedeu o tempo disponível. Consulte o histórico antes de tentar novamente.');}
-  if(!upstream.ok)throw new HttpError(503,[401,403].includes(upstream.status)?'O AI Gateway requer ativação ou autenticação válida na Vercel.':upstream.status===402?'O AI Gateway não tem saldo ou atingiu o limite de custos.':upstream.status===429?'A IA atingiu o limite de pedidos. Aguarde antes de tentar novamente.':'O fornecedor de IA está indisponível.');
+  if(!upstream.ok){
+   // Store only bounded diagnostics: never provider bodies, headers or credentials.
+   const authMethod=process.env.AI_GATEWAY_API_KEY?'api_key':'oidc';
+   usageMetrics.gateway={status:upstream.status,authMethod};
+   console.error('editorial_gateway_rejected',{jobId,model:AI_MODEL,status:upstream.status,authMethod});
+   const message=upstream.status===401?'O AI Gateway recusou a autenticação do servidor (401; '+authMethod+'). A administração deve verificar a credencial na Vercel.':upstream.status===403?'O AI Gateway recusou a autorização deste pedido (403). Verifique as permissões da equipa, do projeto e o acesso ao modelo '+AI_MODEL+'.':upstream.status===402?'O AI Gateway não tem saldo ou atingiu o limite de custos.':upstream.status===429?'A IA atingiu o limite de pedidos. Aguarde antes de tentar novamente.':'O fornecedor de IA está indisponível (HTTP '+upstream.status+').';
+   throw new HttpError(503,message);
+  }
   const raw=await upstream.json();usageMetrics={...usageMetrics,...usageFromProvider(raw,AI_MODEL)};let parsed;try{parsed=JSON.parse(raw.choices?.[0]?.message?.content);}catch{throw new HttpError(502,'Resposta incompleta da IA. Consulte o histórico.');}
   if(raw.choices?.[0]?.finish_reason!=='stop')throw new HttpError(502,'A IA não terminou a proposta. Não foi aplicada.');
   const result=enforceOwnership(parseGeneration(parsed),ctx);

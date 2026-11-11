@@ -19,3 +19,5 @@ test('template from another company never reaches model',async()=>{const x=await
 
 test('monthly API summary excludes other clients and returns consumption',async()=>{const x=await run({method:'GET'});assert.equal(x.res.code,200);assert.equal(x.res.data.summary.requests,1);assert.equal(x.res.data.summary.estimatedUsd,0.015);assert.equal(x.calls,0);});
 test('failed parsing retains billable token usage',async()=>{const x=await run({malformed:true});assert.equal(x.res.code,502);assert.equal(x.finished.metrics.inputTokens,10);assert.equal(x.finished.metrics.cost.usd,0.0011);});
+
+test('gateway authentication and authorization failures have separate safe diagnostics',async()=>{for(const status of [401,403]){const x=await run({providerStatus:status});assert.equal(x.res.code,503);assert.match(x.finished.failure,new RegExp(String(status)));assert.deepEqual(x.finished.metrics.gateway,{status,authMethod:'api_key'});assert.ok(!JSON.stringify(x.finished).includes('fake-test-key'));}});
