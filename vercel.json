@@ -7,7 +7,7 @@
   ],
   "functions": {
     "api/*.mjs": {
-      "maxDuration": 60
+      "maxDuration": 120
     }
   },
   "headers": [
