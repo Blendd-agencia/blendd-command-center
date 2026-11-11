@@ -22,9 +22,9 @@ html body select:not([multiple]):disabled {background-color:#f3f5f8;color:#8491a
 @supports (appearance:base-select) {
   html body select:not([multiple]):not([size]),html body select:not([multiple])[size="1"],
   html body select:not([multiple]):not([size])::picker(select),html body select:not([multiple])[size="1"]::picker(select) {appearance:base-select;}
-  html body select::picker-icon {color:#73859b;font-size:13px;margin-inline-start:18px;transition:rotate .16s ease;}
+  html body select::picker-icon {color:#73859b;font-size:13px;margin-inline-start:18px;rotate:0deg;transform:none;transition:color .12s linear;}
   html body select:open {border-color:#0593c6;box-shadow:0 0 0 3px #0593c614;}
-  html body select:open::picker-icon {rotate:180deg;color:#0593c6;}
+  html body select:open::picker-icon {rotate:0deg;transform:none;color:#0593c6;}
   html body select::picker(select) {
     margin-block:7px;
     padding:6px;
