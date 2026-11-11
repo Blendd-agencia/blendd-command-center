@@ -21,3 +21,10 @@ body[data-page=integrations] .toolbar{display:none}body[data-page=integrations] 
 body,body *{font-family:var(--ui-font)!important}
 .integration-fields label{font-size:13px}.connection-badge{font-size:12px}.integration-category{font-size:12px}.integration-action-note{font-size:12px}
 @media(min-width:761px){aside{overflow:hidden}.brand,.workspace,.nav-label,.side-bottom{flex-shrink:0}#nav{min-height:0;overflow-y:auto;flex:1;scrollbar-width:thin}#nav button{min-height:41px;margin:2px 0;padding:10px 14px}#nav .nav-divider{margin-top:19px;margin-bottom:9px}.workspace{margin:22px 0 16px}.side-bottom{padding-top:8px}.signal{padding:12px 8px}.users{padding-top:13px}}
+
+/* Give the return to company overview a clear, accessible button treatment. */
+#nav button.nav-back{display:flex;align-items:center;justify-content:center;min-height:48px;padding:12px 14px;margin:8px 0 16px;border:1px solid #0593c6;border-radius:14px;background:#e8f6fc;color:#075675;font-size:14px!important;font-weight:700;line-height:1.4;box-shadow:0 3px 10px rgba(5,147,198,.12);transition:background .15s,box-shadow .15s}
+#nav button.nav-back:hover{background:#d6effa;box-shadow:0 4px 12px rgba(5,147,198,.2)}
+#nav button.nav-back:focus-visible{outline:3px solid #0593c6;outline-offset:3px}
+#nav button.nav-back:active{background:#c7e8f6}
+@media(max-width:760px){#nav button.nav-back{min-height:48px;margin:4px 6px 4px 0}}
